@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS emprunts;
 DROP TABLE IF EXISTS livres;
 DROP TABLE IF EXISTS adherents;
 DROP TABLE IF EXISTS auteurs;
+DROP TABLE IF EXISTS tokens;
 DROP TABLE IF EXISTS utilisateurs;
 
 -- =========================================================
@@ -94,8 +95,18 @@ CREATE INDEX idx_emprunts_id_livre ON emprunts(id_livre);
 CREATE INDEX idx_emprunts_date_retour_prevue ON emprunts(date_retour_prevue);
 
 -- =========================================================
--- (Optionnel) Un utilisateur de départ pour pouvoir se connecter
--- Remplacez le hash par un vrai hash généré par votre backend
+-- Table : tokens (refresh tokens)
 -- =========================================================
+CREATE TABLE tokens (
+    id_token        INT AUTO_INCREMENT PRIMARY KEY,
+    id_utilisateur  INT NOT NULL,
+    refresh_token   VARCHAR(255) NOT NULL,
+    expire_at       DATETIME NOT NULL,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_tokens_user
+      FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur)
+      ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- INSERT INTO utilisateurs (nom, email, mot_de_passe_hash, role)
 -- VALUES ('Admin', 'admin@bibliotheque.local', '<hash_a_generer>', 'bibliothecaire');

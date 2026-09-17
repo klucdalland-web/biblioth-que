@@ -1,8 +1,11 @@
 'use strict';
+
 const Router = require('../utils/router');
-const { asyncHandler } = require('../middlewares/errorHandler');
+const { asyncHandler, authenticate } = require('../middlewares');
 const livresController = require('../controllers/livres.controller');
+
 const router = new Router();
-// GET /api/livres
-router.get('/', asyncHandler(livresController.list));
+
+router.get('/', authenticate, asyncHandler(livresController.list));
+
 module.exports = router;

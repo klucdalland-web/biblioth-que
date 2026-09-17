@@ -48,7 +48,11 @@ const env = {
         database: process.env.DB_NAME || 'bibliotheque',
     },
     deviceKey: process.env.DEVICE_KEY || '',
-
+    jwt: {
+        secret: process.env.JWT_SECRET || 'dev-secret-change-me',
+        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+        refreshExpiresDays: Number(process.env.REFRESH_EXPIRES_DAYS) || 7,
+    },
 };
 
 module.exports = env;
