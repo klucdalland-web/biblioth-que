@@ -52,8 +52,11 @@ class Router {
 
   /**
    * Monte un sous-routeur sous un préfixe.
+   * Middlewares optionnels : use('/api/x', deviceKey, childRouter)
    */
-  use(prefix, child) {
+  use(prefix, ...args) {
+    const child = args[args.length - 1];
+    const middlewares = args.slice(0, -1);
     const normalizedPrefix = prefix.replace(/\/+$/, '') || '';
 
     for (const route of child.routes) {
@@ -75,7 +78,7 @@ class Router {
         method: route.method,
         pattern: new RegExp('^' + prefixPattern + childSource + '$'),
         keys,
-        handlers: route.handlers,
+        handlers: [...middlewares, ...route.handlers],
       });
     }
   }

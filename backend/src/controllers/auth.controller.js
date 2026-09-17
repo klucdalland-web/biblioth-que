@@ -76,4 +76,10 @@ async function logout(req, res) {
   sendJson(res, 200, null, 'Déconnecté');
 }
 
-module.exports = { login, register, refresh, logout };
+async function me(req, res) {
+  const user = await RepoAuth.findById(req.user.id);
+  if (!user) throw new AppError('Utilisateur introuvable', 404);
+  sendJson(res, 200, user, 'Profil');
+}
+
+module.exports = { login, register, refresh, logout, me };

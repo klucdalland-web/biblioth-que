@@ -123,11 +123,33 @@ async function findOverdue() {
   return rows;
 }
 
+async function findByAdherentId(idAdherent) {
+  const [rows] = await query(
+    `SELECT e.id_emprunt, e.id_adherent, e.id_livre,
+            e.date_emprunt, e.date_retour_prevue, e.date_retour_reelle,
+            l.titre AS livre_titre,
+            a.nom AS adherent_nom,
+            CASE
+              WHEN e.date_retour_reelle IS NOT NULL THEN 'retourne'
+              WHEN e.date_retour_prevue < CURDATE() THEN 'en_retard'
+              ELSE 'en_cours'
+            END AS statut
+     FROM emprunts e
+     JOIN livres l ON l.id_livre = e.id_livre
+     JOIN adherents a ON a.id_adherent = e.id_adherent
+     WHERE e.id_adherent = :idAdherent
+     ORDER BY e.date_emprunt DESC`,
+    { idAdherent }
+  );
+  return rows;
+}
+
 module.exports = {
   findAll,
   findById,
   findActiveByLivreId,
   countActiveByAdherent,
+  findByAdherentId,
   create,
   markReturned,
   findOverdue,
