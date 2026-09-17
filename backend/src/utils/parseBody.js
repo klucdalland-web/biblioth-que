@@ -13,8 +13,9 @@ function parseBody(req, options = {}) {
     req.on('data', (chunk) => {
       size += chunk.length;
       if (size > maxBytes) {
-        const err = new Error('Payload trop volumineux');
+        const err = new Error('PAYLOAD_TOO_LARGE');
         err.statusCode = 413;
+        err.code = 'PAYLOAD_TOO_LARGE';
         reject(err);
         req.destroy();
         return;
@@ -31,8 +32,9 @@ function parseBody(req, options = {}) {
       try {
         resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
       } catch {
-        const err = new Error('JSON invalide');
+        const err = new Error('INVALID_JSON');
         err.statusCode = 400;
+        err.code = 'INVALID_JSON';
         reject(err);
       }
     });

@@ -5,8 +5,8 @@
 -- =========================================================
 
 -- Décommentez si vous voulez que le script crée la base lui-même
--- CREATE DATABASE IF NOT EXISTS bibliotheque CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- USE bibliotheque;
+CREATE DATABASE IF NOT EXISTS bibliotheque CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE bibliotheque;
 
 -- On repart toujours de zéro (ordre important à cause des clés étrangères)
 DROP TABLE IF EXISTS emprunts;

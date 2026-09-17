@@ -58,6 +58,13 @@ function validate(schema, source = 'body') {
             message: `${field} doit être l'un de : ${rules.enum.join(', ')}`,
           });
         }
+        // Ex. confirmation_mdp: { match: 'password' }
+        if (rules.match && value !== data[rules.match]) {
+          errors.push({
+            field,
+            message: `${field} ne correspond pas à ${rules.match}`,
+          });
+        }
       }
     }
 

@@ -18,6 +18,7 @@ const adherentsRoutes = require('./routes/adherents.routes');
 const livresRoutes = require('./routes/livres.routes');
 const empruntsRoutes = require('./routes/emprunts.routes');
 const statsRoutes = require('./routes/stats.routes');
+const auth = require('./routes/auth.routes')
 
 const app = new Router();
 
@@ -27,6 +28,10 @@ app.use('/api/adherents', adherentsRoutes);
 app.use('/api/livres', livresRoutes);
 app.use('/api/emprunts', empruntsRoutes);
 app.use('/api/stats', statsRoutes);
+
+
+app.use('/api/authentification/', auth)
+
 
 const server = http.createServer(async(req, res) => {
     try {
