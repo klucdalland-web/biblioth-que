@@ -6,7 +6,8 @@ class ApiConstants {
   /// - Simulateur iOS : http://127.0.0.1:3000/api
   /// - Émulateur Android : http://10.0.2.2:3000/api
   /// - Téléphone physique : http://<IP_LAN_DU_MAC>:3000/api
-  static const String baseUrl = 'http://192.168.0.65:3000/api';
+  // static const String baseUrl = 'http://192.168.0.65:3000/api';
+  static const String baseUrl = "https://biblioth-que-vo8b.onrender.com/api";
 
   /// Doit être identique à DEVICE_KEY du backend / front_web.
   static const String deviceKey = 'ma_cle_device_secrete';
