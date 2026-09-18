@@ -1,30 +1,33 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:front_mobile/main.dart';
+import 'package:front_mobile/app/app.dart';
+import 'package:front_mobile/core/network/api_client.dart';
+import 'package:front_mobile/core/storage/token_storage.dart';
+import 'package:front_mobile/data/repositories/auth_repository.dart';
+import 'package:front_mobile/modules/auth/auth_controller.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUpAll(() async {
+    await GetStorage.init();
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  setUp(() {
+    Get.reset();
+    final storage = TokenStorage();
+    Get.put<TokenStorage>(storage, permanent: true);
+    Get.put<ApiClient>(ApiClient(storage), permanent: true);
+    Get.put<AuthRepository>(AuthRepository(Get.find()), permanent: true);
+    Get.put<AuthController>(
+      AuthController(Get.find(), Get.find()),
+      permanent: true,
+    );
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('App démarre sur splash', (tester) async {
+    await tester.pumpWidget(const BiblioApp());
+    expect(find.text('BiblioGestion'), findsOneWidget);
   });
 }

@@ -4,11 +4,9 @@
 -- Akieni Academy — Cohorte 2 — Semaines 14-15
 -- =========================================================
 
--- Décommentez si vous voulez que le script crée la base lui-même
 CREATE DATABASE IF NOT EXISTS bibliotheque CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE bibliotheque;
 
--- On repart toujours de zéro (ordre important à cause des clés étrangères)
 DROP TABLE IF EXISTS emprunts;
 DROP TABLE IF EXISTS livres;
 DROP TABLE IF EXISTS adherents;
@@ -16,8 +14,6 @@ DROP TABLE IF EXISTS auteurs;
 DROP TABLE IF EXISTS tokens;
 DROP TABLE IF EXISTS utilisateurs;
 
--- =========================================================
--- Table : utilisateurs (membres du personnel qui se connectent à l'app)
 -- =========================================================
 CREATE TABLE utilisateurs (
     id_utilisateur     INT AUTO_INCREMENT PRIMARY KEY,
@@ -29,28 +25,21 @@ CREATE TABLE utilisateurs (
     UNIQUE KEY uq_utilisateurs_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- =========================================================
--- Table : auteurs
--- =========================================================
 CREATE TABLE auteurs (
     id_auteur     INT AUTO_INCREMENT PRIMARY KEY,
     nom           VARCHAR(150) NOT NULL,
     nationalite   VARCHAR(100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- =========================================================
--- Table : adherents (membres de la bibliothèque, ne se connectent pas)
--- =========================================================
+-- ========================================================
 CREATE TABLE adherents (
     id_adherent   INT AUTO_INCREMENT PRIMARY KEY,
     nom           VARCHAR(150) NOT NULL,
     contact       VARCHAR(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- =========================================================
--- Table : livres
--- Chaque ligne = un exemplaire physique unique (statut individuel)
--- =========================================================
+-- 
+-- 
 CREATE TABLE livres (
     id_livre           INT AUTO_INCREMENT PRIMARY KEY,
     titre              VARCHAR(200) NOT NULL,
@@ -67,11 +56,7 @@ CREATE TABLE livres (
 CREATE INDEX idx_livres_titre ON livres(titre);
 CREATE INDEX idx_livres_id_auteur ON livres(id_auteur);
 
--- =========================================================
--- Table : emprunts
--- date_retour_reelle = NULL  -> emprunt en cours (ou en retard, calculé, pas stocké)
--- date_retour_reelle renseignée -> livre rendu
--- =========================================================
+-- ==
 CREATE TABLE emprunts (
     id_emprunt           INT AUTO_INCREMENT PRIMARY KEY,
     id_adherent          INT NOT NULL,
@@ -94,9 +79,7 @@ CREATE INDEX idx_emprunts_id_adherent ON emprunts(id_adherent);
 CREATE INDEX idx_emprunts_id_livre ON emprunts(id_livre);
 CREATE INDEX idx_emprunts_date_retour_prevue ON emprunts(date_retour_prevue);
 
--- =========================================================
 -- Table : tokens (refresh tokens)
--- =========================================================
 CREATE TABLE tokens (
     id_token        INT AUTO_INCREMENT PRIMARY KEY,
     id_utilisateur  INT NOT NULL,
@@ -108,5 +91,3 @@ CREATE TABLE tokens (
       ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- INSERT INTO utilisateurs (nom, email, mot_de_passe_hash, role)
--- VALUES ('Admin', 'admin@bibliotheque.local', '<hash_a_generer>', 'bibliothecaire');

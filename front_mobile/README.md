@@ -1,17 +1,33 @@
-# front_mobile
+# front_mobile (BiblioGestion)
 
-A new Flutter project.
+Application Flutter — architecture **GetX**, branchée sur la même API que `front_web`.
 
-## Getting Started
+## Lancer
 
-This project is a starting point for a Flutter application.
+```bash
+cd front_mobile
+flutter pub get
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+## Config API
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Éditer `lib/core/constants/api_constants.dart` :
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| Cible | `baseUrl` |
+|-------|-----------|
+| Simulateur iOS | `http://127.0.0.1:3000/api` |
+| Émulateur Android | `http://10.0.2.2:3000/api` |
+| Téléphone (LAN) | `http://<IP_MAC>:3000/api` |
+
+`deviceKey` doit matcher le backend.
+
+## Fonctionnalités (parité web)
+
+- Login + splash session + refresh JWT
+- Dashboard /stats (livres, adhérents, emprunts, retards, tops)
+- Livres : liste, recherche, pagination, création, suppression
+- Adhérents : liste, recherche, création, suppression
+- Emprunts : onglets en cours / retard, création, retour
+- Profil : édition + changement de mot de passe + logout
+- Users (admin) : liste, création, édition, suppression

@@ -1,0 +1,625 @@
+{
+  "info": {
+    "_postman_id": "biblio-gestion-api-001",
+    "name": "BiblioGestion API",
+    "description": "Collection complète pour l'API BiblioGestion.\n\n## Setup\n1. Importer ce fichier dans Postman\n2. Vérifier les variables de collection (`baseUrl`, `deviceKey`)\n3. Lancer **Auth → Login** — les tokens sont enregistrés automatiquement\n4. Les autres requêtes utilisent `Authorization: Bearer {{accessToken}}` + `x-device-key`\n\n## Headers globaux\n- `x-device-key` → doit matcher `DEVICE_KEY` du backend\n- `Authorization` → JWT access token (sauf login / register / refresh / logout)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:3000/api" },
+    { "key": "deviceKey", "value": "ma_cle_device_secrete" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "id_livre", "value": "1" },
+    { "key": "id_auteur", "value": "1" },
+    { "key": "id_adherent", "value": "1" },
+    { "key": "id_emprunt", "value": "1" },
+    { "key": "id_utilisateur", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Jean Dupont\",\n  \"mail\": \"jean.dupont@biblio.local\",\n  \"password\": \"secret123\",\n  \"confirmation_mdp\": \"secret123\"\n}"
+            },
+            "url": "{{baseUrl}}/authentification/register",
+            "description": "Créer un compte bibliothécaire (premier utilisateur)."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : json;",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', data.accessToken);",
+                  "}",
+                  "if (data && data.refreshToken) {",
+                  "  pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                  "}",
+                  "if (data && data.user && data.user.id_utilisateur) {",
+                  "  pm.collectionVariables.set('id_utilisateur', String(data.user.id_utilisateur));",
+                  "}",
+                  "pm.test('Login OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(data.accessToken).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mail\": \"admin@biblio.local\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/authentification/login",
+            "description": "Connexion. Enregistre automatiquement `accessToken` et `refreshToken` dans les variables de collection.\n\nAdapte email/password à ton utilisateur réel."
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/authentification/me",
+            "description": "Profil de l'utilisateur connecté."
+          }
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Admin Biblio\",\n  \"mail\": \"admin@biblio.local\"\n}"
+            },
+            "url": "{{baseUrl}}/authentification/me",
+            "description": "Mettre à jour nom + email du profil."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password_actuel\": \"admin123\",\n  \"password\": \"nouveau123\",\n  \"confirmation_mdp\": \"nouveau123\"\n}"
+            },
+            "url": "{{baseUrl}}/authentification/me/password",
+            "description": "Changer le mot de passe (puis se reconnecter)."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : json;",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/authentification/refresh",
+            "description": "Renouveler l'access token. Met à jour `accessToken` automatiquement."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/authentification/logout",
+            "description": "Invalider le refresh token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/stats",
+            "description": "Tableau de bord : counts + top livres + top adhérents."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auteurs",
+      "item": [
+        {
+          "name": "List Auteurs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/auteurs"
+          }
+        },
+        {
+          "name": "Get Auteur",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/auteurs/{{id_auteur}}"
+          }
+        },
+        {
+          "name": "Create Auteur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : json;",
+                  "if (data && data.id_auteur) {",
+                  "  pm.collectionVariables.set('id_auteur', String(data.id_auteur));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Victor Hugo\",\n  \"nationalite\": \"Française\"\n}"
+            },
+            "url": "{{baseUrl}}/auteurs"
+          }
+        },
+        {
+          "name": "Update Auteur",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Victor Hugo\",\n  \"nationalite\": \"France\"\n}"
+            },
+            "url": "{{baseUrl}}/auteurs/{{id_auteur}}"
+          }
+        },
+        {
+          "name": "Delete Auteur",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/auteurs/{{id_auteur}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Livres",
+      "item": [
+        {
+          "name": "List Livres",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/livres?page=1&limit=10&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["livres"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "", "description": "Optionnel" }
+              ]
+            },
+            "description": "Liste paginée. Query optionnelle : `search`, `statut`, `id_auteur`."
+          }
+        },
+        {
+          "name": "Get Livre",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/livres/{{id_livre}}"
+          }
+        },
+        {
+          "name": "Create Livre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : json;",
+                  "if (data && data.id_livre) {",
+                  "  pm.collectionVariables.set('id_livre', String(data.id_livre));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Les Misérables\",\n  \"id_auteur\": {{id_auteur}},\n  \"annee_publication\": 1862,\n  \"statut\": \"disponible\"\n}"
+            },
+            "url": "{{baseUrl}}/livres",
+            "description": "`statut` optionnel : `disponible` | `emprunte`"
+          }
+        },
+        {
+          "name": "Update Livre",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Les Misérables\",\n  \"id_auteur\": {{id_auteur}},\n  \"annee_publication\": 1862,\n  \"statut\": \"disponible\"\n}"
+            },
+            "url": "{{baseUrl}}/livres/{{id_livre}}"
+          }
+        },
+        {
+          "name": "Delete Livre",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/livres/{{id_livre}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Adherents",
+      "item": [
+        {
+          "name": "List Adherents",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/adherents?search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["adherents"],
+              "query": [
+                { "key": "search", "value": "", "description": "Optionnel" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Adherent",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/adherents/{{id_adherent}}"
+          }
+        },
+        {
+          "name": "List Emprunts Adherent",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/adherents/{{id_adherent}}/emprunts"
+          }
+        },
+        {
+          "name": "Create Adherent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : json;",
+                  "if (data && data.id_adherent) {",
+                  "  pm.collectionVariables.set('id_adherent', String(data.id_adherent));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Marie Curie\",\n  \"contact\": \"marie.curie@email.com\"\n}"
+            },
+            "url": "{{baseUrl}}/adherents"
+          }
+        },
+        {
+          "name": "Update Adherent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Marie Curie\",\n  \"contact\": \"marie.curie@email.com\"\n}"
+            },
+            "url": "{{baseUrl}}/adherents/{{id_adherent}}"
+          }
+        },
+        {
+          "name": "Delete Adherent",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/adherents/{{id_adherent}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Emprunts",
+      "item": [
+        {
+          "name": "List Emprunts",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/emprunts"
+          }
+        },
+        {
+          "name": "List Emprunts en Retard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/emprunts/retard"
+          }
+        },
+        {
+          "name": "Create Emprunt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : json;",
+                  "if (data && data.id_emprunt) {",
+                  "  pm.collectionVariables.set('id_emprunt', String(data.id_emprunt));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_adherent\": {{id_adherent}},\n  \"id_livre\": {{id_livre}},\n  \"date_retour_prevue\": \"2026-10-02\"\n}"
+            },
+            "url": "{{baseUrl}}/emprunts",
+            "description": "`date_emprunt` optionnelle. Le livre doit être `disponible`."
+          }
+        },
+        {
+          "name": "Retour Emprunt",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/emprunts/{{id_emprunt}}/retour",
+            "description": "Marquer le livre comme retourné. Body vide ou `{ \"date_retour_reelle\": \"2026-09-18\" }`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Admin)",
+      "description": "Réservé aux utilisateurs avec `role = admin`.",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/users/{{id_utilisateur}}"
+          }
+        },
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const data = json && json.data ? json.data : json;",
+                  "if (data && data.id_utilisateur) {",
+                  "  pm.collectionVariables.set('id_utilisateur', String(data.id_utilisateur));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Alice Martin\",\n  \"mail\": \"alice@biblio.local\",\n  \"password\": \"secret123\",\n  \"role\": \"bibliothecaire\"\n}"
+            },
+            "url": "{{baseUrl}}/users",
+            "description": "`role` : `admin` | `bibliothecaire`"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Alice Martin\",\n  \"mail\": \"alice@biblio.local\",\n  \"role\": \"bibliothecaire\"\n}"
+            },
+            "url": "{{baseUrl}}/users/{{id_utilisateur}}"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-device-key", "value": "{{deviceKey}}" }
+            ],
+            "url": "{{baseUrl}}/users/{{id_utilisateur}}"
+          }
+        }
+      ]
+    }
+  ]
+}
