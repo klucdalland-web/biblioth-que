@@ -1,0 +1,618 @@
+/* =========================================================
+   BiblioGestion — Styles partagés (CSS pur, sans framework)
+   ========================================================= */
+
+:root {
+    --color-primary: #1e3a8a;
+    --color-primary-hover: #1e40af;
+    --color-primary-light: #dbeafe;
+    --color-bg: #f7f9fb;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f2f4f6;
+    --color-text: #1e293b;
+    --color-text-muted: #64748b;
+    --color-border: #e2e8f0;
+    --color-success: #059669;
+    --color-success-bg: #d1fae5;
+    --color-warning: #d97706;
+    --color-warning-bg: #fef3c7;
+    --color-danger: #dc2626;
+    --color-danger-bg: #fee2e2;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --sidebar-width: 240px;
+    --topbar-height: 64px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* ===================== LAYOUT ===================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-brand {
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar-brand h1 {
+    font-size: 18px;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.sidebar-brand p {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin: 4px 0 0;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    color: var(--color-text-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sidebar-nav a:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+.sidebar-nav a.active {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.sidebar-footer {
+    padding: 14px 16px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.sidebar-footer .user-name {
+    font-weight: 600;
+}
+
+.sidebar-footer .user-role {
+    color: var(--color-text-muted);
+    font-size: 12px;
+}
+
+.logout-link {
+    color: var(--color-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.logout-link:hover {
+    color: var(--color-danger);
+}
+
+.app-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+}
+
+.topbar {
+    height: var(--topbar-height);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+}
+
+.main {
+    padding: 24px;
+}
+
+
+/* ===================== HEADER DE PAGE ===================== */
+
+.page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.page-header h2 {
+    margin: 0 0 4px;
+    font-size: 22px;
+}
+
+.page-header p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* ===================== BOUTONS ===================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-hover);
+}
+
+.btn-secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text);
+}
+
+.btn-secondary:hover {
+    background: var(--color-surface-alt);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--color-danger);
+    padding: 4px;
+}
+
+.btn-danger:hover {
+    background: var(--color-danger-bg);
+}
+
+
+/* ===================== FORMULAIRES ===================== */
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-text);
+}
+
+.required {
+    color: var(--color-danger);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="search"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.search-bar {
+    position: relative;
+    width: 280px;
+}
+
+.search-bar input {
+    padding-left: 34px;
+}
+
+.search-bar .icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    font-size: 14px;
+}
+
+
+/* ===================== TABLEAUX ===================== */
+
+.table-card {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: var(--color-surface-alt);
+}
+
+th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-muted);
+}
+
+td {
+    padding: 12px 16px;
+    border-top: 1px solid var(--color-border);
+    font-size: 14px;
+}
+
+tr:hover td {
+    background: var(--color-surface-alt);
+}
+
+.text-right {
+    text-align: right;
+}
+
+.empty-row td {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: 24px;
+}
+
+
+/* ===================== BADGES ===================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.badge-warning {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.badge-danger {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+
+/* ===================== CARTES STATISTIQUES (Dashboard) ===================== */
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+}
+
+.stat-card .stat-label {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    margin: 0 0 6px;
+}
+
+.stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.highlight-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.highlight-card {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+}
+
+.highlight-card h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+}
+
+.highlight-card .highlight-value {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* ===================== MODALES ===================== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 16px;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--color-surface-alt);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 14px 20px;
+    background: var(--color-surface-alt);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+
+/* ===================== ALERTES / ERREURS ===================== */
+
+.alert {
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.alert.hidden {
+    display: none;
+}
+
+.alert-error {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+
+/* ===================== TABS (Emprunts) ===================== */
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--color-text-muted);
+}
+
+.tab-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+
+/* ===================== LOGIN ===================== */
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-card {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 400px;
+    padding: 32px;
+}
+
+.login-card .brand {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.login-card .brand h1 {
+    color: var(--color-primary);
+    margin: 8px 0 4px;
+}
+
+.login-card .brand p {
+    color: var(--color-text-muted);
+    font-size: 13px;
+    margin: 0;
+}
+
+.login-card .btn-primary {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+
+/* ===================== PAGINATION ===================== */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+}
+
+.pagination button {
+    padding: 6px 12px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination .page-info {
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+
+/* ===================== RESPONSIVE ===================== */
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    .app-content {
+        margin-left: 0;
+    }
+    .form-row,
+    .highlight-grid {
+        grid-template-columns: 1fr;
+    }
+}

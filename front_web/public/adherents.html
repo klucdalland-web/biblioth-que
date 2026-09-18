@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiblioGestion — Adhérents</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>BiblioGestion</h1>
+            <p>Bibliothèque de quartier</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html">Tableau de bord</a>
+            <a href="livres.html">Livres</a>
+            <a href="adherents.html" class="active">Adhérents</a>
+            <a href="emprunts.html">Emprunts</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div>
+                <div class="user-name">Personnel</div>
+                <div class="user-role">Bibliothécaire</div>
+            </div>
+            <a href="login.html" id="logout-link" class="logout-link">Déconnexion</a>
+        </div>
+    </aside>
+
+    <div class="app-content">
+        <main class="main">
+            <div class="page-header">
+                <div>
+                    <h2>Gestion des adhérents</h2>
+                    <p>Consultation et gestion des membres inscrits à la bibliothèque.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <span class="icon">🔍</span>
+                        <input type="search" id="adherents-search" placeholder="Rechercher un adhérent...">
+                    </div>
+                    <button class="btn btn-primary" onclick="document.getElementById('modal-new-adherent').classList.remove('hidden')" type="button">
+            + Ajouter un adhérent
+          </button>
+                </div>
+            </div>
+
+            <div id="adherents-error" class="alert alert-error hidden"></div>
+
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Adhérent</th>
+                            <th>Contact</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adherents-table-body">
+                        <tr class="empty-row">
+                            <td colspan="3">Chargement...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal : Ajouter un adhérent -->
+    <div class="modal-overlay hidden" id="modal-new-adherent">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Ajouter un adhérent</h3>
+                <button class="modal-close" onclick="document.getElementById('modal-new-adherent').classList.add('hidden')" type="button">✕</button>
+            </div>
+            <form id="form-new-adherent">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="adherent-nom">Nom <span class="required">*</span></label>
+                            <input type="text" id="adherent-nom" placeholder="Ex. Mercier" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="adherent-prenom">Prénom <span class="required">*</span></label>
+                            <input type="text" id="adherent-prenom" placeholder="Ex. Lucas" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="adherent-email">Contact (email) <span class="required">*</span></label>
+                        <input type="email" id="adherent-email" placeholder="usager@domaine.fr" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('modal-new-adherent').classList.add('hidden')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer la fiche adhérent</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const logoutLink = document.getElementById("logout-link");
+        if (logoutLink) {
+            logoutLink.addEventListener("click", function(e) {
+                e.preventDefault();
+                localStorage.removeItem("token");
+                window.location.href = "login.html";
+            });
+        }
+    </script>
+    <script src="js/adherents.js"></script>
+</body>
+
+</html>
