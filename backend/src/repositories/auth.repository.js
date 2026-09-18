@@ -42,9 +42,10 @@ async function findAll() {
 }
 
 async function create({ nom, email, mot_de_passe_hash, role = 'bibliothecaire' }) {
-  const [result] = await query(
+  const [, result] = await query(
     `INSERT INTO utilisateurs (nom, email, mot_de_passe_hash, role)
-     VALUES (:nom, :email, :mot_de_passe_hash, :role)`,
+     VALUES (:nom, :email, :mot_de_passe_hash, :role)
+     RETURNING id_utilisateur`,
     { nom, email, mot_de_passe_hash, role }
   );
 
@@ -71,7 +72,7 @@ async function updatePassword(id, mot_de_passe_hash) {
 }
 
 async function remove(id) {
-  const [result] = await query(
+  const [, result] = await query(
     `DELETE FROM utilisateurs WHERE id_utilisateur = :id`,
     { id }
   );

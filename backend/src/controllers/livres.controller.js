@@ -53,7 +53,7 @@ async function remove(req, res) {
   try {
     await livresRepo.remove(id);
   } catch (err) {
-    if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.errno === 1451) {
+    if (err.code === '23503') {
       throw new AppError(
         'Impossible de supprimer : ce livre a encore des emprunts',
         409

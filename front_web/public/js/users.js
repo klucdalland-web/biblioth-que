@@ -51,7 +51,13 @@ function ouvrirEdition(id, nom, email, role) {
   document.getElementById('edit-user-id').value = id;
   document.getElementById('edit-user-nom').value = nom;
   document.getElementById('edit-user-email').value = email;
-  document.getElementById('edit-user-role').value = role;
+  const roleSelect = document.getElementById('edit-user-role');
+  roleSelect.value = role;
+  const isSelf = currentUserId && Number(id) === Number(currentUserId);
+  roleSelect.disabled = Boolean(isSelf);
+  roleSelect.title = isSelf
+    ? 'Vous ne pouvez pas modifier votre propre rôle'
+    : '';
   modalEdit.classList.remove('hidden');
 }
 
@@ -130,13 +136,19 @@ formEdit.addEventListener('submit', async (e) => {
   btn.textContent = 'Enregistrement...';
 
   try {
+    const isSelf = currentUserId && Number(id) === Number(currentUserId);
+    const payload = {
+      nom: document.getElementById('edit-user-nom').value.trim(),
+      mail: document.getElementById('edit-user-email').value.trim(),
+    };
+    // Ne pas renvoyer un rôle modifié pour son propre compte
+    if (!isSelf) {
+      payload.role = document.getElementById('edit-user-role').value;
+    }
+
     await apiFetch(`/users/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({
-        nom: document.getElementById('edit-user-nom').value.trim(),
-        mail: document.getElementById('edit-user-email').value.trim(),
-        role: document.getElementById('edit-user-role').value,
-      }),
+      body: JSON.stringify(payload),
     });
     modalEdit.classList.add('hidden');
     chargerUsers();

@@ -3,9 +3,10 @@
 const { query } = require('../config/db.config');
 
 async function create({ id_utilisateur, refresh_token, expire_at }) {
-  const [result] = await query(
+  const [, result] = await query(
     `INSERT INTO tokens (id_utilisateur, refresh_token, expire_at)
-     VALUES (:id_utilisateur, :refresh_token, :expire_at)`,
+     VALUES (:id_utilisateur, :refresh_token, :expire_at)
+     RETURNING id_token`,
     { id_utilisateur, refresh_token, expire_at }
   );
 
@@ -29,7 +30,7 @@ async function findByToken(refresh_token) {
 }
 
 async function removeByToken(refresh_token) {
-  const [result] = await query(
+  const [, result] = await query(
     `DELETE FROM tokens WHERE refresh_token = :refresh_token`,
     { refresh_token }
   );
@@ -37,7 +38,7 @@ async function removeByToken(refresh_token) {
 }
 
 async function removeByUser(id_utilisateur) {
-  const [result] = await query(
+  const [, result] = await query(
     `DELETE FROM tokens WHERE id_utilisateur = :id_utilisateur`,
     { id_utilisateur }
   );

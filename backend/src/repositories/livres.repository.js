@@ -11,7 +11,7 @@ async function findAll({ search, statut, id_auteur, page = 1, limit = 10 } = {})
     params.statut = statut;
   }
   if (search) {
-    conditions.push('(l.titre LIKE :search OR a.nom LIKE :search)');
+    conditions.push('(l.titre ILIKE :search OR a.nom ILIKE :search)');
     params.search = `%${search}%`;
   }
   if (id_auteur) {
@@ -23,14 +23,14 @@ async function findAll({ search, statut, id_auteur, page = 1, limit = 10 } = {})
     conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '';
 
   const [[countRow]] = await query(
-    `SELECT COUNT(*) AS total
+    `SELECT COUNT(*)::int AS total
      FROM livres l
      JOIN auteurs a ON a.id_auteur = l.id_auteur
      ${where}`,
     params
   );
 
-  const total = countRow.total;
+  const total = Number(countRow.total);
   const safePage = Math.max(1, Number(page) || 1);
   const safeLimit = Math.min(100, Math.max(1, Number(limit) || 10));
   const offset = (safePage - 1) * safeLimit;
@@ -73,9 +73,10 @@ async function findById(id) {
 }
 
 async function create({ titre, annee_publication, id_auteur, statut }) {
-  const [result] = await query(
+  const [, result] = await query(
     `INSERT INTO livres (titre, annee_publication, id_auteur, statut)
-     VALUES (:titre, :annee_publication, :id_auteur, :statut)`,
+     VALUES (:titre, :annee_publication, :id_auteur, :statut)
+     RETURNING id_livre`,
     {
       titre,
       annee_publication: annee_publication ?? null,
@@ -114,7 +115,7 @@ async function setStatut(id, statut) {
 }
 
 async function remove(id) {
-  const [result] = await query(`DELETE FROM livres WHERE id_livre = :id`, {
+  const [, result] = await query(`DELETE FROM livres WHERE id_livre = :id`, {
     id,
   });
   return result.affectedRows > 0;

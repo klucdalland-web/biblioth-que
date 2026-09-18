@@ -220,6 +220,7 @@ class UsersView extends GetView<UsersController> {
     final nomCtrl = TextEditingController(text: user.nom);
     final mailCtrl = TextEditingController(text: user.email);
     String role = user.role;
+    final isSelf = user.id == controller.currentUserId;
     final formKey = GlobalKey<FormState>();
     String? localError;
 
@@ -249,7 +250,12 @@ class UsersView extends GetView<UsersController> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: role,
-                    decoration: const InputDecoration(labelText: 'Rôle'),
+                    decoration: InputDecoration(
+                      labelText: 'Rôle',
+                      helperText: isSelf
+                          ? 'Vous ne pouvez pas modifier votre propre rôle'
+                          : null,
+                    ),
                     items: const [
                       DropdownMenuItem(
                         value: 'bibliothecaire',
@@ -260,7 +266,9 @@ class UsersView extends GetView<UsersController> {
                         child: Text('Administrateur'),
                       ),
                     ],
-                    onChanged: (v) => setState(() => role = v ?? role),
+                    onChanged: isSelf
+                        ? null
+                        : (v) => setState(() => role = v ?? role),
                   ),
                   const SizedBox(height: 16),
                   Obx(
@@ -273,7 +281,7 @@ class UsersView extends GetView<UsersController> {
                                 id: user.id,
                                 nom: nomCtrl.text.trim(),
                                 mail: mailCtrl.text.trim(),
-                                role: role,
+                                role: isSelf ? user.role : role,
                               );
                               if (ok) {
                                 Get.back();

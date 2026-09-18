@@ -22,9 +22,10 @@ async function findById(id) {
 }
 
 async function create({ nom, nationalite }) {
-  const [result] = await query(
+  const [, result] = await query(
     `INSERT INTO auteurs (nom, nationalite)
-     VALUES (:nom, :nationalite)`,
+     VALUES (:nom, :nationalite)
+     RETURNING id_auteur`,
     { nom, nationalite: nationalite ?? null }
   );
   return findById(result.insertId);
@@ -42,7 +43,7 @@ async function update(id, { nom, nationalite }) {
 }
 
 async function remove(id) {
-  const [result] = await query(
+  const [, result] = await query(
     `DELETE FROM auteurs WHERE id_auteur = :id`,
     { id }
   );

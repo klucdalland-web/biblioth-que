@@ -37,7 +37,7 @@ async function remove(req, res) {
   try {
     await auteursRepo.remove(id);
   } catch (err) {
-    if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.errno === 1451) {
+    if (err.code === '23503') {
       throw new AppError(
         'Impossible de supprimer : cet auteur a encore des livres',
         409

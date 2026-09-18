@@ -10,7 +10,7 @@ async function findAll({ en_cours, en_retard } = {}) {
            a.nom AS adherent_nom,
            CASE
              WHEN e.date_retour_reelle IS NOT NULL THEN 'retourne'
-             WHEN e.date_retour_prevue < CURDATE() THEN 'en_retard'
+             WHEN e.date_retour_prevue < CURRENT_DATE THEN 'en_retard'
              ELSE 'en_cours'
            END AS statut
     FROM emprunts e
@@ -25,7 +25,7 @@ async function findAll({ en_cours, en_retard } = {}) {
   }
   if (en_retard) {
     conditions.push(
-      'e.date_retour_reelle IS NULL AND e.date_retour_prevue < CURDATE()'
+      'e.date_retour_reelle IS NULL AND e.date_retour_prevue < CURRENT_DATE'
     );
   }
 
@@ -46,7 +46,7 @@ async function findById(id) {
             a.nom AS adherent_nom,
             CASE
               WHEN e.date_retour_reelle IS NOT NULL THEN 'retourne'
-              WHEN e.date_retour_prevue < CURDATE() THEN 'en_retard'
+              WHEN e.date_retour_prevue < CURRENT_DATE THEN 'en_retard'
               ELSE 'en_cours'
             END AS statut
      FROM emprunts e
@@ -72,12 +72,12 @@ async function findActiveByLivreId(idLivre) {
 
 async function countActiveByAdherent(idAdherent) {
   const [rows] = await query(
-    `SELECT COUNT(*) AS total
+    `SELECT COUNT(*)::int AS total
      FROM emprunts
      WHERE id_adherent = :idAdherent AND date_retour_reelle IS NULL`,
     { idAdherent }
   );
-  return rows[0].total;
+  return Number(rows[0].total);
 }
 
 async function create({
@@ -86,11 +86,12 @@ async function create({
   date_emprunt,
   date_retour_prevue,
 }) {
-  const [result] = await query(
+  const [, result] = await query(
     `INSERT INTO emprunts
        (id_adherent, id_livre, date_emprunt, date_retour_prevue)
      VALUES
-       (:id_adherent, :id_livre, :date_emprunt, :date_retour_prevue)`,
+       (:id_adherent, :id_livre, :date_emprunt, :date_retour_prevue)
+     RETURNING id_emprunt`,
     { id_adherent, id_livre, date_emprunt, date_retour_prevue }
   );
   return findById(result.insertId);
@@ -112,12 +113,12 @@ async function findOverdue() {
             e.date_emprunt, e.date_retour_prevue, e.date_retour_reelle,
             l.titre AS livre_titre,
             a.nom AS adherent_nom,
-            DATEDIFF(CURDATE(), e.date_retour_prevue) AS jours_retard
+            (CURRENT_DATE - e.date_retour_prevue) AS jours_retard
      FROM emprunts e
      JOIN livres l ON l.id_livre = e.id_livre
      JOIN adherents a ON a.id_adherent = e.id_adherent
      WHERE e.date_retour_reelle IS NULL
-       AND e.date_retour_prevue < CURDATE()
+       AND e.date_retour_prevue < CURRENT_DATE
      ORDER BY e.date_retour_prevue ASC`
   );
   return rows;
@@ -131,7 +132,7 @@ async function findByAdherentId(idAdherent) {
             a.nom AS adherent_nom,
             CASE
               WHEN e.date_retour_reelle IS NOT NULL THEN 'retourne'
-              WHEN e.date_retour_prevue < CURDATE() THEN 'en_retard'
+              WHEN e.date_retour_prevue < CURRENT_DATE THEN 'en_retard'
               ELSE 'en_cours'
             END AS statut
      FROM emprunts e

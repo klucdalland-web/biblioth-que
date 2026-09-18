@@ -6,7 +6,9 @@ const adherentsRepo = require('../repositories/adherents.repository');
 const empruntsRepo = require('../repositories/emprunts.repository');
 
 async function list(req, res) {
-  const adherents = await adherentsRepo.findAll();
+  const adherents = await adherentsRepo.findAll({
+    search: req.query.search || undefined,
+  });
   sendJson(res, 200, adherents, 'Liste des adhérents');
 }
 
@@ -38,7 +40,8 @@ async function remove(req, res) {
   try {
     await adherentsRepo.remove(id);
   } catch (err) {
-    if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.errno === 1451) {
+    // Postgres: 23503 = foreign_key_violation
+    if (err.code === '23503') {
       throw new AppError(
         'Impossible de supprimer : cet adhérent a encore des emprunts',
         409

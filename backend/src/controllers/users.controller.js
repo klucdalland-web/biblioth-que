@@ -49,7 +49,15 @@ async function update(req, res) {
   const current = await RepoAuth.findById(id);
   if (!current) throw new AppError('Utilisateur introuvable', 404);
 
-  const nextRole = role || current.role;
+  const isSelf = id === Number(req.user.id);
+  if (isSelf && role && role !== current.role) {
+    throw new AppError(
+      'Vous ne pouvez pas modifier votre propre rôle',
+      400
+    );
+  }
+
+  const nextRole = isSelf ? current.role : role || current.role;
   if (!ROLES.includes(nextRole)) {
     throw new AppError(`Rôle invalide (${ROLES.join(', ')})`, 400);
   }
