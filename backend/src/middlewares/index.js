@@ -6,6 +6,7 @@ const withBody = require('./withBody');
 const { AppError, errorHandler, asyncHandler } = require('./errorHandler');
 const deviceKey = require('./deviceKey');
 const authenticate = require('./authenticate');
+const requireAdmin = require('./requireAdmin');
 
 module.exports = {
   logger,
@@ -16,4 +17,5 @@ module.exports = {
   asyncHandler,
   deviceKey,
   authenticate,
+  requireAdmin,
 };

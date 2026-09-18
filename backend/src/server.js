@@ -15,6 +15,7 @@ const adherentsRoutes = require('./routes/adherents.routes');
 const livresRoutes = require('./routes/livres.routes');
 const empruntsRoutes = require('./routes/emprunts.routes');
 const statsRoutes = require('./routes/stats.routes');
+const usersRoutes = require('./routes/users.routes');
 const auth = require('./routes/auth.routes');
 
 const app = new Router();
@@ -24,6 +25,7 @@ app.use('/api/adherents', deviceKey, adherentsRoutes);
 app.use('/api/livres', deviceKey, livresRoutes);
 app.use('/api/emprunts', deviceKey, empruntsRoutes);
 app.use('/api/stats', deviceKey, statsRoutes);
+app.use('/api/users', deviceKey, usersRoutes);
 app.use('/api/authentification', deviceKey, auth);
 
 function applyCors(req, res) {
@@ -65,8 +67,8 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(env.port, () => {
-  console.log(`API + front : http://localhost:${env.port}`);
-  console.log(`Login       : http://localhost:${env.port}/login.html`);
+  console.log(`API + front : http://localhost:${env.port}  |  http://127.0.0.1:${env.port}`);
+  console.log(`Login       : http://127.0.0.1:${env.port}/login.html`);
 });
 
 module.exports = server;

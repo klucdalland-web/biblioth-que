@@ -9,6 +9,7 @@ const tokensRepo = require('../repositories/tokens.repository');
 const authService = require('../services/auth.service');
 
 const SALT_ROUNDS = 10;
+const ROLES = ['bibliothecaire', 'admin'];
 
 async function register(req, res) {
   const { nom, mail, password } = req.body;
@@ -82,4 +83,57 @@ async function me(req, res) {
   sendJson(res, 200, user, 'Profil');
 }
 
-module.exports = { login, register, refresh, logout, me };
+async function updateMe(req, res) {
+  const { nom, mail } = req.body;
+  const id = req.user.id;
+
+  const current = await RepoAuth.findById(id);
+  if (!current) throw new AppError('Utilisateur introuvable', 404);
+
+  if (mail && mail !== current.email) {
+    const existing = await RepoAuth.findByEmail(mail);
+    if (existing) throw new AppError('Cet email est déjà utilisé', 409);
+  }
+
+  const user = await RepoAuth.update(id, {
+    nom: nom || current.nom,
+    email: mail || current.email,
+    role: current.role,
+  });
+
+  sendJson(res, 200, user, 'Profil mis à jour');
+}
+
+async function changePassword(req, res) {
+  const { password_actuel, password, confirmation_mdp } = req.body;
+  const id = req.user.id;
+
+  if (password !== confirmation_mdp) {
+    throw new AppError('Les mots de passe ne correspondent pas', 400);
+  }
+
+  const user = await RepoAuth.findByIdWithHash(id);
+  if (!user) throw new AppError('Utilisateur introuvable', 404);
+
+  const ok = await bcrypt.compare(password_actuel, user.mot_de_passe_hash);
+  if (!ok) {
+    throw new AppError('Mot de passe actuel incorrect', 401);
+  }
+
+  const mot_de_passe_hash = await bcrypt.hash(password, SALT_ROUNDS);
+  await RepoAuth.updatePassword(id, mot_de_passe_hash);
+  await tokensRepo.removeByUser(id);
+
+  sendJson(res, 200, null, 'Mot de passe modifié');
+}
+
+module.exports = {
+  login,
+  register,
+  refresh,
+  logout,
+  me,
+  updateMe,
+  changePassword,
+  ROLES,
+};

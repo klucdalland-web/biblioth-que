@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiblioGestion — Mon profil</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>BiblioGestion</h1>
+            <p>Bibliothèque de quartier</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html">Tableau de bord</a>
+            <a href="livres.html">Livres</a>
+            <a href="adherents.html">Adhérents</a>
+            <a href="emprunts.html">Emprunts</a>
+            <a href="users.html">Utilisateurs</a>
+            <a href="profile.html" class="active">Mon profil</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div>
+                <div class="user-name">…</div>
+                <div class="user-role">…</div>
+            </div>
+            <a href="login.html" id="logout-link" class="logout-link">Déconnexion</a>
+        </div>
+    </aside>
+
+    <div class="app-content">
+        <main class="main">
+            <div class="page-header">
+                <div>
+                    <h2>Mon profil</h2>
+                    <p>Informations du compte et mot de passe.</p>
+                </div>
+            </div>
+
+            <div id="profile-error" class="alert alert-error hidden"></div>
+            <div id="profile-success" class="alert alert-success hidden"></div>
+
+            <div class="profile-grid">
+                <div class="table-card profile-card">
+                    <h3 class="card-title">Informations</h3>
+                    <form id="form-profile">
+                        <div class="form-group">
+                            <label for="profile-nom">Nom <span class="required">*</span></label>
+                            <input type="text" id="profile-nom" required minlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-email">Email <span class="required">*</span></label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-role">Rôle</label>
+                            <input type="text" id="profile-role" disabled>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btn-save-profile">Enregistrer</button>
+                    </form>
+                </div>
+
+                <div class="table-card profile-card">
+                    <h3 class="card-title">Changer le mot de passe</h3>
+                    <form id="form-password">
+                        <div class="form-group">
+                            <label for="password-actuel">Mot de passe actuel <span class="required">*</span></label>
+                            <input type="password" id="password-actuel" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password-new">Nouveau mot de passe <span class="required">*</span></label>
+                            <input type="password" id="password-new" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="password-confirm">Confirmation <span class="required">*</span></label>
+                            <input type="password" id="password-confirm" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btn-save-password">Modifier le mot de passe</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('logout-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    </script>
+    <script src="js/profile.js"></script>
+</body>
+
+</html>

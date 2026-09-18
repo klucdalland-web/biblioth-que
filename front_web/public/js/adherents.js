@@ -1,6 +1,7 @@
 'use strict';
 
 requireAuth();
+loadSidebarUser();
 
 const tableBody = document.getElementById('adherents-table-body');
 const form = document.getElementById('form-new-adherent');
