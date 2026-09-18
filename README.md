@@ -4,7 +4,7 @@ Application de gestion d’une bibliothèque de quartier (personnel / bibliothé
 
 | Partie | Techno |
 |--------|--------|
-| **backend** | Node.js (HTTP natif), MySQL, JWT |
+| **backend** | Node.js (HTTP natif), **PostgreSQL (Supabase)**, JWT |
 | **front_web** | HTML / CSS / JS (servi par le backend) |
 | **front_mobile** | Flutter + GetX |
 
@@ -13,8 +13,8 @@ Application de gestion d’une bibliothèque de quartier (personnel / bibliothé
 ## Prérequis
 
 - **Node.js** ≥ 18
-- **MySQL** ≥ 8
 - **npm**
+- Un projet **Supabase** (PostgreSQL)
 - (optionnel) **Flutter** pour l’app mobile
 
 ---
@@ -30,15 +30,16 @@ bibliotheque/
 
 ---
 
-## 1. Base de données
+## 1. Base de données (Supabase / PostgreSQL)
 
-Créer la base et les tables :
+1. Crée un projet sur [Supabase](https://supabase.com)
+2. Ouvre **SQL Editor**
+3. Exécute dans l’ordre :
+   - `backend/src/config/database.sql` (schéma)
+   - `backend/src/config/insert.sql` (données de démo, optionnel)
 
-```bash
-mysql -u root -p < backend/src/config/database.sql
-```
-
-Ou dans MySQL Workbench / CLI : exécuter le contenu de `backend/src/config/database.sql`.
+> N’utilise **pas** l’URI « Direct » (`db.xxx.supabase.co`) depuis un Mac sans IPv6  
+> → tu auras `ENOTFOUND`. Utilise le **Session pooler**.
 
 ---
 
@@ -53,8 +54,6 @@ npm install
 
 ### Configuration
 
-Copier l’exemple d’environnement :
-
 ```bash
 cp .env.example .env
 ```
@@ -65,11 +64,15 @@ cp .env.example .env
 PORT=3000
 NODE_ENV=development
 
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=bibliotheque
+# Session pooler (Dashboard → Connect → Session pooler)
+# Mot de passe = Database password (Settings → Database), PAS la clé API
+DATABASE_URL=postgresql://postgres.PROJECT_REF:YOUR_PASSWORD@aws-1-REGION.pooler.supabase.com:5432/postgres
+
+SUPABASE_URL=https://PROJECT_REF.supabase.co
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
+SUPABASE_JWKS_URL=https://PROJECT_REF.supabase.co/auth/v1/.well-known/jwks.json
+
 DEVICE_KEY=ma_cle_device_secrete
 
 JWT_SECRET=une_longue_chaine_aleatoire_a_generer
@@ -88,10 +91,8 @@ API_BASE_URL=/api
 DEVICE_KEY=ma_cle_device_secrete
 ```
 
-> `DEVICE_KEY` doit être **identique** côté backend et front.
-
-
-
+> `DEVICE_KEY` doit être **identique** côté backend et front.  
+> Ne commit **jamais** `backend/.env` (secrets).
 
 ### Lancer
 
@@ -100,14 +101,10 @@ cd backend
 npm run dev
 ```
 
-Le serveur démarre sur le port **3000** :
-
 | URL | Description |
 |-----|-------------|
 | http://127.0.0.1:3000/login.html | Interface web |
 | http://127.0.0.1:3000/api/... | API REST |
-
-
 
 Sur le réseau local (même Wi‑Fi) :
 
@@ -115,20 +112,16 @@ Sur le réseau local (même Wi‑Fi) :
 http://<IP_DU_MAC>:3000
 ```
 
-Exemple : `http://192.168.0.65:3000`
-
 ---
 
 ## 3. Front web
 
-Rien à installer à part : le backend **sert** déjà `front_web/public`.
+Rien à installer : le backend **sert** déjà `front_web/public`.
 
 1. Lancer le backend (`npm run dev`)
 2. Ouvrir http://127.0.0.1:3000/login.html
 
 ### Premier compte
-
-Via register :
 
 ```bash
 curl -X POST http://127.0.0.1:3000/api/authentification/register \
@@ -137,7 +130,7 @@ curl -X POST http://127.0.0.1:3000/api/authentification/register \
   -d '{"nom":"Alice","mail":"alice@mail.com","password":"azerty123","confirmation_mdp":"azerty123"}'
 ```
 
-Pour rendre un utilisateur **admin** (gestion des users) :
+Pour rendre un utilisateur **admin** (SQL Editor Supabase) :
 
 ```sql
 UPDATE utilisateurs SET role = 'admin' WHERE email = 'alice@mail.com';
@@ -155,38 +148,41 @@ flutter pub get
 flutter run
 ```
 
-Configurer l’URL de l’API vers la machine qui héberge le backend, par ex. :
+Configurer l’URL de l’API (pas `localhost` sur un téléphone physique) :
 
 ```text
-http://192.168.0.65:3000/api
+http://192.168.x.x:3000/api
 ```
 
-(pas `localhost` depuis un téléphone physique — `localhost` pointe vers le téléphone).
-
-Headers requis comme le web :
+Headers :
 
 - `x-device-key: ma_cle_device_secrete`
 - `Authorization: Bearer <accessToken>`
 
 ---
 
-## API — rappel rapide
+## 5. Déploiement (rappel)
 
-Toutes les routes (sauf health éventuel) exigent le header :
+| Élément | Où |
+|---------|-----|
+| Base PostgreSQL | **Supabase** (déjà) |
+| API Node + front web | **Railway** (ou Render / Fly.io) |
+
+Sur Railway : déployer le dossier `backend`, coller les variables du `.env`  
+(surtout `DATABASE_URL` pooler, `DEVICE_KEY`, `JWT_SECRET`).
+
+---
+
+## API — rappel rapide
 
 ```http
 x-device-key: ma_cle_device_secrete
-```
-
-Routes protégées (hors login / register / refresh / logout) :
-
-```http
 Authorization: Bearer <accessToken>
 ```
 
 | Ressource | Préfixe |
 |-----------|---------|
-| Auth | `/api/authentification` (`login`, `register`, `refresh`, `logout`, `me`) |
+| Auth | `/api/authentification` |
 | Auteurs | `/api/auteurs` |
 | Adhérents | `/api/adherents` |
 | Livres | `/api/livres` |
@@ -194,17 +190,17 @@ Authorization: Bearer <accessToken>
 | Stats | `/api/stats` |
 | Users (admin) | `/api/users` |
 
+Collection Postman : `backend/postman/BiblioGestion.postman_collection.json`
+
 ---
 
 ## Scripts utiles
 
 ```bash
-# Backend en mode watch
 cd backend && npm run dev
-
-# Réimporter le schéma SQL (⚠️ efface les données)
-mysql -u root -p < backend/src/config/database.sql
 ```
+
+Réimporter le schéma (⚠️ efface les tables) : coller `database.sql` dans le SQL Editor Supabase.
 
 ---
 
@@ -212,11 +208,14 @@ mysql -u root -p < backend/src/config/database.sql
 
 | Problème | Piste |
 |----------|--------|
-| `EADDRINUSE :::3000` | Un process occupe déjà le port → `lsof -i :3000` puis tuer le PID |
-| `Token invalide ou expiré` | Le front web refresh automatiquement ; sinon reconnecte-toi |
-| `Clé device invalide` | Vérifier `DEVICE_KEY` dans `backend/.env` et `front_web/.env` |
-| Login OK en local, KO sur téléphone | Utiliser l’IP LAN du Mac, pas `localhost` |
+| `ENOTFOUND db.xxx.supabase.co` | Utiliser l’URI **Session pooler**, pas Direct |
+| `password authentication failed` | Mauvais mot de passe **Database** (pas la clé API) |
+| `EADDRINUSE :::3000` | `lsof -i :3000` puis tuer le PID |
+| `Token invalide ou expiré` | Refresh auto côté front ; sinon reconnecte-toi |
+| `Clé device invalide` | Même `DEVICE_KEY` dans `backend/.env` et `front_web/.env` |
+| Login OK en local, KO sur téléphone | IP LAN du Mac, pas `localhost` |
 | Page Utilisateurs invisible | Compte non admin → `UPDATE utilisateurs SET role = 'admin' ...` |
+| Push GitHub bloqué (secrets) | Ne jamais committer `.env` |
 
 ---
 
