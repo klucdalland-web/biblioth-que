@@ -202,6 +202,12 @@ a {
     background: var(--color-primary-hover);
 }
 
+.btn-primary:disabled,
+.btn-primary.is-loading {
+    opacity: 0.7;
+    cursor: wait;
+}
+
 .btn-secondary {
     background: var(--color-surface);
     border-color: var(--color-border);

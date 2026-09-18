@@ -1,14 +1,13 @@
 'use strict';
 
 /**
- * Point d'entrée — architecture uniquement.
- * Branche : env → router → middlewares → routes
+ * Point d'entrée — API + front web (front_web/public)
  */
 
 const http = require('http');
 
 const env = require('./config/env');
-const { Router, sendJson } = require('./utils');
+const { Router, sendJson, serveStatic } = require('./utils');
 const { logger, errorHandler, deviceKey } = require('./middlewares');
 
 const auteursRoutes = require('./routes/auteurs.routes');
@@ -20,7 +19,6 @@ const auth = require('./routes/auth.routes');
 
 const app = new Router();
 
-// deviceKey sur toutes les routes /api
 app.use('/api/auteurs', deviceKey, auteursRoutes);
 app.use('/api/adherents', deviceKey, adherentsRoutes);
 app.use('/api/livres', deviceKey, livresRoutes);
@@ -28,14 +26,38 @@ app.use('/api/emprunts', deviceKey, empruntsRoutes);
 app.use('/api/stats', deviceKey, statsRoutes);
 app.use('/api/authentification', deviceKey, auth);
 
+function applyCors(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization, x-device-key'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+  );
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return true;
+  }
+  return false;
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     await new Promise((resolve) => logger(req, res, resolve));
 
+    if (applyCors(req, res)) return;
+
     const matched = await app.handle(req, res);
 
     if (!matched && !res.writableEnded) {
-      sendJson(res, 404, null, 'Route introuvable ');
+      const served = serveStatic(req, res);
+      if (!served) {
+        sendJson(res, 404, null, 'Route introuvable ');
+      }
     }
   } catch (err) {
     errorHandler(err, req, res);
@@ -43,7 +65,8 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(env.port, () => {
-  console.log(`Serveur démarré sur http://localhost:${env.port}`);
+  console.log(`API + front : http://localhost:${env.port}`);
+  console.log(`Login       : http://localhost:${env.port}/login.html`);
 });
 
 module.exports = server;

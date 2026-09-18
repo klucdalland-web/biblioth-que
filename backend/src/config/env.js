@@ -35,6 +35,8 @@ function loadEnvFile(filePath) {
 }
 
 loadEnvFile(path.resolve(process.cwd(), '.env'));
+// Config front (API_BASE_URL, etc.) — n'écrase pas les clés déjà définies
+loadEnvFile(path.resolve(__dirname, '../../../front_web/.env'));
 
 const env = {
     port: Number(process.env.PORT) || 3000,
@@ -52,6 +54,10 @@ const env = {
         secret: process.env.JWT_SECRET || 'dev-secret-change-me',
         expiresIn: process.env.JWT_EXPIRES_IN || '15m',
         refreshExpiresDays: Number(process.env.REFRESH_EXPIRES_DAYS) || 7,
+    },
+    front: {
+        apiBaseUrl: process.env.API_BASE_URL || '/api',
+        publicDir: path.resolve(__dirname, '../../../front_web/public'),
     },
 };
 

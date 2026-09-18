@@ -73,14 +73,14 @@
         </main>
     </div>
 
+    <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script>
         const logoutLink = document.getElementById("logout-link");
         if (logoutLink) {
             logoutLink.addEventListener("click", function(e) {
                 e.preventDefault();
-                localStorage.removeItem("token");
-                window.location.href = "login.html";
+                logout();
             });
         }
     </script>
