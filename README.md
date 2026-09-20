@@ -16,7 +16,7 @@ Application de gestion d’une bibliothèque de quartier (personnel / bibliothé
 |--|--|
 | **Web** | https://biblioth-que-vo8b.onrender.com/login.html |
 | **API** | https://biblioth-que-vo8b.onrender.com/api |
-| **Email** | `lucdalland@gmail.com` |
+| **Email** | `admin@gmail.com` |
 | **Mot de passe** | `Nkodialuc1` |
 
 > Sur le plan Free Render, le premier chargement peut prendre ~30–60 s (cold start).
