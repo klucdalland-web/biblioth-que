@@ -44,6 +44,17 @@ class StatsModel {
           : const [],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'livres': livres,
+        'adherents': adherents,
+        'emprunts_en_cours': empruntsEnCours,
+        'emprunts_en_retard': empruntsEnRetard,
+        'auteurs': auteurs,
+        'livres_disponibles': livresDisponibles,
+        'top_livres': topLivres.map((e) => e.toJson()).toList(),
+        'top_adherents': topAdherents.map((e) => e.toJson()).toList(),
+      };
 }
 
 class TopLivreStat {
@@ -58,6 +69,11 @@ class TopLivreStat {
       nbEmprunts: (json['nb_emprunts'] as num?)?.toInt() ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'titre': titre,
+        'nb_emprunts': nbEmprunts,
+      };
 }
 
 class TopAdherentStat {
@@ -72,4 +88,9 @@ class TopAdherentStat {
       nbEmprunts: (json['nb_emprunts'] as num?)?.toInt() ?? 0,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'nom': nom,
+        'nb_emprunts': nbEmprunts,
+      };
 }

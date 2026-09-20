@@ -301,6 +301,36 @@ class ErrorBanner extends StatelessWidget {
   }
 }
 
+/// Bannière affichée lorsque les données proviennent du cache local.
+class OfflineBanner extends StatelessWidget {
+  const OfflineBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.warningBg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.cloud_off_outlined, color: AppColors.warning, size: 20),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Mode hors ligne — données en cache',
+              style: TextStyle(color: AppColors.warning, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class SectionLabel extends StatelessWidget {
   const SectionLabel(this.text, {super.key});
 

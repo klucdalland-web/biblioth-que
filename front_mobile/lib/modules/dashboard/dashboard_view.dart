@@ -51,6 +51,8 @@ class DashboardView extends GetView<DashboardController> {
               ),
             ),
             const SizedBox(height: 16),
+            if (controller.isOfflineData.value)
+              const OfflineBanner(),
             if (controller.errorMessage.value.isNotEmpty)
               ErrorBanner(
                 message: controller.errorMessage.value,

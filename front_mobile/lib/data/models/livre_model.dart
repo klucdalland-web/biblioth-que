@@ -27,6 +27,15 @@ class LivreModel {
       auteurNom: json['auteur_nom'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id_livre': id,
+        'titre': titre,
+        'id_auteur': idAuteur,
+        'statut': statut,
+        'annee_publication': anneePublication,
+        'auteur_nom': auteurNom,
+      };
 }
 
 class PaginatedLivres {
@@ -75,4 +84,13 @@ class PaginatedLivres {
       total: (pagination['total'] as num?)?.toInt() ?? items.length,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'items': items.map((e) => e.toJson()).toList(),
+        'pagination': {
+          'page': page,
+          'totalPages': totalPages,
+          'total': total,
+        },
+      };
 }

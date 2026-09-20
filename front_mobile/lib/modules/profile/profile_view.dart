@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:front_mobile/app/theme/app_colors.dart';
 import 'package:front_mobile/app/widgets/ui_kit.dart';
 import 'package:front_mobile/core/network/api_exception.dart';
-import 'package:front_mobile/data/repositories/auth_repository.dart';
+import 'package:front_mobile/app/routes/app_routes.dart';
+import 'package:front_mobile/domain/repositories/auth_repository.dart';
 import 'package:front_mobile/modules/auth/auth_controller.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -246,6 +247,7 @@ class _ProfileViewState extends State<ProfileView> {
                                 const Duration(milliseconds: 1200),
                               );
                               await controller.logout();
+                              await Get.offAllNamed(AppRoutes.login);
                             } on ApiException catch (e) {
                               passwordError.value = e.message;
                             } catch (e) {
@@ -270,7 +272,10 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             const SizedBox(height: 24),
             OutlinedButton.icon(
-              onPressed: controller.logout,
+              onPressed: () async {
+                await controller.logout();
+                await Get.offAllNamed(AppRoutes.login);
+              },
               icon: const Icon(Icons.logout, color: AppColors.danger),
               label: const Text(
                 'Déconnexion',

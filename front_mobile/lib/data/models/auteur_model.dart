@@ -16,4 +16,10 @@ class AuteurModel {
       nationalite: json['nationalite'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id_auteur': id,
+        'nom': nom,
+        'nationalite': nationalite,
+      };
 }

@@ -1,73 +1,39 @@
-import 'package:dio/dio.dart';
-import 'package:front_mobile/core/constants/api_constants.dart';
-import 'package:front_mobile/core/network/api_client.dart';
+import 'package:front_mobile/data/datasources/remote/users_remote_data_source.dart';
 import 'package:front_mobile/data/models/user_model.dart';
+import 'package:front_mobile/domain/repositories/users_repository.dart';
 
-class UsersRepository {
-  UsersRepository(this._api);
+/// Implémentation utilisateurs admin (online-only).
+class UsersRepositoryImpl implements UsersRepository {
+  UsersRepositoryImpl(this._remote);
 
-  final ApiClient _api;
+  final UsersRemoteDataSource _remote;
 
-  Future<List<UserModel>> list() async {
-    try {
-      final res = await _api.dio.get(ApiConstants.users);
-      final data = _api.unwrap(res);
-      if (data is! List) return [];
-      return data
-          .whereType<Map>()
-          .map((e) => UserModel.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  @override
+  Future<List<UserModel>> list() => _remote.list();
 
+  @override
   Future<UserModel> create({
     required String nom,
     required String mail,
     required String password,
     required String role,
-  }) async {
-    try {
-      final res = await _api.dio.post(
-        ApiConstants.users,
-        data: {
-          'nom': nom,
-          'mail': mail,
-          'password': password,
-          'role': role,
-        },
+  }) =>
+      _remote.create(
+        nom: nom,
+        mail: mail,
+        password: password,
+        role: role,
       );
-      final data = _api.unwrap(res);
-      return UserModel.fromJson(Map<String, dynamic>.from(data as Map));
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
 
+  @override
   Future<UserModel> update({
     required int id,
     required String nom,
     required String mail,
     required String role,
-  }) async {
-    try {
-      final res = await _api.dio.put(
-        '${ApiConstants.users}/$id',
-        data: {'nom': nom, 'mail': mail, 'role': role},
-      );
-      final data = _api.unwrap(res);
-      return UserModel.fromJson(Map<String, dynamic>.from(data as Map));
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  }) =>
+      _remote.update(id: id, nom: nom, mail: mail, role: role);
 
-  Future<void> remove(int id) async {
-    try {
-      await _api.dio.delete('${ApiConstants.users}/$id');
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  @override
+  Future<void> remove(int id) => _remote.remove(id);
 }

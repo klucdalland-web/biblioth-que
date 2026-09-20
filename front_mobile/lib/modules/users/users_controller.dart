@@ -1,6 +1,6 @@
 import 'package:front_mobile/core/network/api_exception.dart';
 import 'package:front_mobile/data/models/user_model.dart';
-import 'package:front_mobile/data/repositories/users_repository.dart';
+import 'package:front_mobile/domain/repositories/users_repository.dart';
 import 'package:front_mobile/modules/auth/auth_controller.dart';
 import 'package:get/get.dart';
 

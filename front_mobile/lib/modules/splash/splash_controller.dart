@@ -14,9 +14,9 @@ class SplashController extends GetxController {
     final auth = Get.find<AuthController>();
     final ok = await auth.restoreSession();
     if (ok) {
-      Get.offAllNamed(AppRoutes.shell);
+      await Get.offAllNamed(AppRoutes.shell);
     } else {
-      Get.offAllNamed(AppRoutes.login);
+      await Get.offAllNamed(AppRoutes.login);
     }
   }
 }

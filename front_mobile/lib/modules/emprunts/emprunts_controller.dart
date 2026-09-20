@@ -2,9 +2,9 @@ import 'package:front_mobile/core/network/api_exception.dart';
 import 'package:front_mobile/data/models/adherent_model.dart';
 import 'package:front_mobile/data/models/emprunt_model.dart';
 import 'package:front_mobile/data/models/livre_model.dart';
-import 'package:front_mobile/data/repositories/adherents_repository.dart';
-import 'package:front_mobile/data/repositories/emprunts_repository.dart';
-import 'package:front_mobile/data/repositories/livres_repository.dart';
+import 'package:front_mobile/domain/repositories/adherents_repository.dart';
+import 'package:front_mobile/domain/repositories/emprunts_repository.dart';
+import 'package:front_mobile/domain/repositories/livres_repository.dart';
 import 'package:get/get.dart';
 
 enum EmpruntsTab { enCours, enRetard }
@@ -33,16 +33,11 @@ class EmpruntsController extends GetxController {
 
   Future<void> loadFormData() async {
     try {
-      final results = await Future.wait([
-        _adherentsRepo.list(),
-        _livresRepo.list(page: 1, limit: 200),
-      ]);
-      adherents.assignAll(results[0] as List<AdherentModel>);
-      final livres = results[1] as dynamic;
+      final adherentsResult = await _adherentsRepo.list();
+      final livresResult = await _livresRepo.list(page: 1, limit: 200);
+      adherents.assignAll(adherentsResult.data);
       livresDisponibles.assignAll(
-        (livres.items as List<LivreModel>)
-            .where((l) => l.isDisponible)
-            .toList(),
+        livresResult.data.items.where((l) => l.isDisponible).toList(),
       );
     } catch (_) {}
   }
@@ -56,7 +51,9 @@ class EmpruntsController extends GetxController {
       } else {
         final all = await _empruntsRepo.list();
         items.assignAll(
-          all.where((e) => e.dateRetourReelle == null || e.dateRetourReelle!.isEmpty),
+          all.where(
+            (e) => e.dateRetourReelle == null || e.dateRetourReelle!.isEmpty,
+          ),
         );
       }
     } on ApiException catch (e) {

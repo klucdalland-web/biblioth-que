@@ -1,74 +1,81 @@
-import 'package:dio/dio.dart';
-import 'package:front_mobile/core/constants/api_constants.dart';
-import 'package:front_mobile/core/network/api_client.dart';
+import 'package:front_mobile/core/network/api_exception.dart';
+import 'package:front_mobile/data/datasources/local/livres_local_data_source.dart';
+import 'package:front_mobile/data/datasources/remote/livres_remote_data_source.dart';
 import 'package:front_mobile/data/models/auteur_model.dart';
 import 'package:front_mobile/data/models/livre_model.dart';
+import 'package:front_mobile/domain/models/repository_result.dart';
+import 'package:front_mobile/domain/repositories/livres_repository.dart';
 
-class LivresRepository {
-  LivresRepository(this._api);
+/// Orchestration remote + cache local pour les livres.
+class LivresRepositoryImpl implements LivresRepository {
+  LivresRepositoryImpl(this._remote, this._local);
 
-  final ApiClient _api;
+  final LivresRemoteDataSource _remote;
+  final LivresLocalDataSource _local;
 
-  Future<PaginatedLivres> list({
+  @override
+  Future<RepositoryResult<PaginatedLivres>> list({
     String? search,
     int page = 1,
     int limit = 10,
   }) async {
     try {
-      final res = await _api.dio.get(
-        ApiConstants.livres,
-        queryParameters: {
-          'page': page,
-          'limit': limit,
-          if (search != null && search.isNotEmpty) 'search': search,
-        },
+      final data = await _remote.list(
+        search: search,
+        page: page,
+        limit: limit,
       );
-      return PaginatedLivres.fromJson(_api.unwrap(res));
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
+      await _local.saveList(
+        data,
+        search: search,
+        page: page,
+        limit: limit,
+      );
+      return RepositoryResult(data);
+    } on ApiException catch (e) {
+      if (e.isNetwork) {
+        final cached = _local.readList(
+          search: search,
+          page: page,
+          limit: limit,
+        );
+        if (cached != null) {
+          return RepositoryResult(cached, fromCache: true);
+        }
+      }
+      rethrow;
     }
   }
 
-  Future<List<AuteurModel>> listAuteurs() async {
+  @override
+  Future<RepositoryResult<List<AuteurModel>>> listAuteurs() async {
     try {
-      final res = await _api.dio.get(ApiConstants.auteurs);
-      final data = _api.unwrap(res);
-      if (data is! List) return [];
-      return data
-          .whereType<Map>()
-          .map((e) => AuteurModel.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
+      final data = await _remote.listAuteurs();
+      await _local.saveAuteurs(data);
+      return RepositoryResult(data);
+    } on ApiException catch (e) {
+      if (e.isNetwork) {
+        final cached = _local.readAuteurs();
+        if (cached != null) {
+          return RepositoryResult(cached, fromCache: true);
+        }
+      }
+      rethrow;
     }
   }
 
+  @override
   Future<LivreModel> create({
     required String titre,
     required int idAuteur,
     int? anneePublication,
-  }) async {
-    try {
-      final res = await _api.dio.post(
-        ApiConstants.livres,
-        data: {
-          'titre': titre,
-          'id_auteur': idAuteur,
-          if (anneePublication != null) 'annee_publication': anneePublication,
-        },
+  }) =>
+      _remote.create(
+        titre: titre,
+        idAuteur: idAuteur,
+        anneePublication: anneePublication,
       );
-      final data = _api.unwrap(res);
-      return LivreModel.fromJson(Map<String, dynamic>.from(data as Map));
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
 
-  Future<void> remove(int id) async {
-    try {
-      await _api.dio.delete('${ApiConstants.livres}/$id');
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  @override
+  Future<void> remove(int id) => _remote.remove(id);
 }

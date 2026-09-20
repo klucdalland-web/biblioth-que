@@ -36,6 +36,11 @@ class LivresView extends GetView<LivresController> {
                   onRetry: controller.load,
                 ),
               ),
+            if (controller.isOfflineData.value)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: OfflineBanner(),
+              ),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: controller.load,

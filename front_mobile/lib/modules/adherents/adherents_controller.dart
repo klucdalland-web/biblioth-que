@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:front_mobile/core/network/api_exception.dart';
 import 'package:front_mobile/data/models/adherent_model.dart';
-import 'package:front_mobile/data/repositories/adherents_repository.dart';
+import 'package:front_mobile/domain/repositories/adherents_repository.dart';
 import 'package:get/get.dart';
 
 class AdherentsController extends GetxController {
@@ -14,6 +14,7 @@ class AdherentsController extends GetxController {
   final isLoading = false.obs;
   final isSaving = false.obs;
   final errorMessage = ''.obs;
+  final isOfflineData = false.obs;
   final searchQuery = ''.obs;
 
   Timer? _debounce;
@@ -40,11 +41,15 @@ class AdherentsController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      items.assignAll(await _repo.list(search: searchQuery.value));
+      final result = await _repo.list(search: searchQuery.value);
+      items.assignAll(result.data);
+      isOfflineData.value = result.fromCache;
     } on ApiException catch (e) {
       errorMessage.value = e.message;
+      isOfflineData.value = false;
     } catch (e) {
       errorMessage.value = e.toString();
+      isOfflineData.value = false;
     } finally {
       isLoading.value = false;
     }

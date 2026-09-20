@@ -25,7 +25,7 @@ class TokenStorage {
     if (refreshToken != null) {
       await _secure.write(key: _refreshKey, value: refreshToken);
     }
-    _box.write(_sessionKey, true);
+    await _box.write(_sessionKey, true);
   }
 
   Future<String?> get accessToken => _secure.read(key: _accessKey);
@@ -35,7 +35,7 @@ class TokenStorage {
   Future<void> clearTokens() async {
     await _secure.delete(key: _accessKey);
     await _secure.delete(key: _refreshKey);
-    _box.write(_sessionKey, false);
+    await _box.write(_sessionKey, false);
   }
 
   void saveUserJson(Map<String, dynamic> user) {

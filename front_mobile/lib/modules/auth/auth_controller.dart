@@ -1,11 +1,10 @@
 import 'package:front_mobile/core/network/api_exception.dart';
 import 'package:front_mobile/core/storage/token_storage.dart';
 import 'package:front_mobile/data/models/user_model.dart';
-import 'package:front_mobile/data/repositories/auth_repository.dart';
-import 'package:front_mobile/app/routes/app_routes.dart';
+import 'package:front_mobile/domain/repositories/auth_repository.dart';
 import 'package:get/get.dart';
 
-/// Session globale (login / me / logout).
+/// Session globale (login / me / logout) — sans navigation (responsabilité UI).
 class AuthController extends GetxController {
   AuthController(this._repo, this._storage);
 
@@ -41,7 +40,8 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> login({
+  /// Authentifie l'utilisateur. Retourne `true` en cas de succès (navigation côté vue).
+  Future<bool> login({
     required String mail,
     required String password,
   }) async {
@@ -59,16 +59,19 @@ class AuthController extends GetxController {
       } else {
         await restoreSession();
       }
-      Get.offAllNamed(AppRoutes.shell);
+      return true;
     } on ApiException catch (e) {
       errorMessage.value = e.message;
+      return false;
     } catch (e) {
       errorMessage.value = e.toString();
+      return false;
     } finally {
       isLoading.value = false;
     }
   }
 
+  /// Déconnexion locale + API. La navigation reste à la charge de la vue.
   Future<void> logout() async {
     final refresh = await _storage.refreshToken;
     if (refresh != null) {
@@ -76,7 +79,6 @@ class AuthController extends GetxController {
     }
     await _storage.clearAll();
     user.value = null;
-    Get.offAllNamed(AppRoutes.login);
   }
 
   Future<void> refreshProfile() async {

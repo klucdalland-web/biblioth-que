@@ -16,4 +16,10 @@ class AdherentModel {
       contact: json['contact'] as String? ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id_adherent': id,
+        'nom': nom,
+        'contact': contact,
+      };
 }

@@ -1,72 +1,31 @@
-import 'package:dio/dio.dart';
-import 'package:front_mobile/core/constants/api_constants.dart';
-import 'package:front_mobile/core/network/api_client.dart';
+import 'package:front_mobile/data/datasources/remote/emprunts_remote_data_source.dart';
 import 'package:front_mobile/data/models/emprunt_model.dart';
+import 'package:front_mobile/domain/repositories/emprunts_repository.dart';
 
-class EmpruntsRepository {
-  EmpruntsRepository(this._api);
+/// Implémentation emprunts (online-only).
+class EmpruntsRepositoryImpl implements EmpruntsRepository {
+  EmpruntsRepositoryImpl(this._remote);
 
-  final ApiClient _api;
+  final EmpruntsRemoteDataSource _remote;
 
-  Future<List<EmpruntModel>> list() async {
-    try {
-      final res = await _api.dio.get(ApiConstants.emprunts);
-      final data = _api.unwrap(res);
-      if (data is! List) return [];
-      return data
-          .whereType<Map>()
-          .map((e) => EmpruntModel.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  @override
+  Future<List<EmpruntModel>> list() => _remote.list();
 
-  Future<List<EmpruntModel>> listRetard() async {
-    try {
-      final res = await _api.dio.get(ApiConstants.empruntsRetard);
-      final data = _api.unwrap(res);
-      if (data is! List) return [];
-      return data
-          .whereType<Map>()
-          .map(
-            (e) => EmpruntModel.fromJson({
-              ...Map<String, dynamic>.from(e),
-              'statut': 'en_retard',
-            }),
-          )
-          .toList();
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  @override
+  Future<List<EmpruntModel>> listRetard() => _remote.listRetard();
 
+  @override
   Future<EmpruntModel> create({
     required int idAdherent,
     required int idLivre,
     required String dateRetourPrevue,
-  }) async {
-    try {
-      final res = await _api.dio.post(
-        ApiConstants.emprunts,
-        data: {
-          'id_adherent': idAdherent,
-          'id_livre': idLivre,
-          'date_retour_prevue': dateRetourPrevue,
-        },
+  }) =>
+      _remote.create(
+        idAdherent: idAdherent,
+        idLivre: idLivre,
+        dateRetourPrevue: dateRetourPrevue,
       );
-      final data = _api.unwrap(res);
-      return EmpruntModel.fromJson(Map<String, dynamic>.from(data as Map));
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
 
-  Future<void> retour(int id) async {
-    try {
-      await _api.dio.put('${ApiConstants.emprunts}/$id/retour', data: {});
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  @override
+  Future<void> retour(int id) => _remote.retour(id);
 }

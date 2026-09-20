@@ -1,53 +1,41 @@
-import 'package:dio/dio.dart';
-import 'package:front_mobile/core/constants/api_constants.dart';
-import 'package:front_mobile/core/network/api_client.dart';
+import 'package:front_mobile/core/network/api_exception.dart';
+import 'package:front_mobile/data/datasources/local/adherents_local_data_source.dart';
+import 'package:front_mobile/data/datasources/remote/adherents_remote_data_source.dart';
 import 'package:front_mobile/data/models/adherent_model.dart';
+import 'package:front_mobile/domain/models/repository_result.dart';
+import 'package:front_mobile/domain/repositories/adherents_repository.dart';
 
-class AdherentsRepository {
-  AdherentsRepository(this._api);
+/// Orchestration remote + cache local pour les adhérents.
+class AdherentsRepositoryImpl implements AdherentsRepository {
+  AdherentsRepositoryImpl(this._remote, this._local);
 
-  final ApiClient _api;
+  final AdherentsRemoteDataSource _remote;
+  final AdherentsLocalDataSource _local;
 
-  Future<List<AdherentModel>> list({String? search}) async {
+  @override
+  Future<RepositoryResult<List<AdherentModel>>> list({String? search}) async {
     try {
-      final res = await _api.dio.get(
-        ApiConstants.adherents,
-        queryParameters: {
-          if (search != null && search.isNotEmpty) 'search': search,
-        },
-      );
-      final data = _api.unwrap(res);
-      if (data is! List) return [];
-      return data
-          .whereType<Map>()
-          .map((e) => AdherentModel.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
+      final data = await _remote.list(search: search);
+      await _local.saveList(data, search: search);
+      return RepositoryResult(data);
+    } on ApiException catch (e) {
+      if (e.isNetwork) {
+        final cached = _local.readList(search: search);
+        if (cached != null) {
+          return RepositoryResult(cached, fromCache: true);
+        }
+      }
+      rethrow;
     }
   }
 
+  @override
   Future<AdherentModel> create({
     required String nom,
     required String contact,
-  }) async {
-    try {
-      final res = await _api.dio.post(
-        ApiConstants.adherents,
-        data: {'nom': nom, 'contact': contact},
-      );
-      final data = _api.unwrap(res);
-      return AdherentModel.fromJson(Map<String, dynamic>.from(data as Map));
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  }) =>
+      _remote.create(nom: nom, contact: contact);
 
-  Future<void> remove(int id) async {
-    try {
-      await _api.dio.delete('${ApiConstants.adherents}/$id');
-    } on DioException catch (e) {
-      _api.throwFromDio(e);
-    }
-  }
+  @override
+  Future<void> remove(int id) => _remote.remove(id);
 }

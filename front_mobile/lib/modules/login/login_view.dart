@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front_mobile/app/routes/app_routes.dart';
 import 'package:front_mobile/app/theme/app_colors.dart';
 import 'package:front_mobile/modules/auth/auth_controller.dart';
 import 'package:get/get.dart';
@@ -132,14 +133,17 @@ class LoginView extends GetView<AuthController> {
                               () => ElevatedButton(
                                 onPressed: controller.isLoading.value
                                     ? null
-                                    : () {
+                                    : () async {
                                         if (!_formKey.currentState!.validate()) {
                                           return;
                                         }
-                                        controller.login(
+                                        final ok = await controller.login(
                                           mail: _mailCtrl.text.trim(),
                                           password: _passwordCtrl.text,
                                         );
+                                        if (ok) {
+                                          await Get.offAllNamed(AppRoutes.shell);
+                                        }
                                       },
                                 child: controller.isLoading.value
                                     ? const SizedBox(
