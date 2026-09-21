@@ -140,7 +140,7 @@ Rien à installer : le backend **sert** déjà `front_web/public`.
 
 | Champ | Valeur |
 |-------|--------|
-| Email | `lucdalland@gmail.com` |
+| Email | `admin@gmail.com` |
 | Mot de passe | `Nkodialuc1` |
 
 Connexion : https://biblioth-que-vo8b.onrender.com/login.html  
