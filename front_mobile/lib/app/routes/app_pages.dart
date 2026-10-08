@@ -4,6 +4,8 @@ import 'package:front_mobile/core/middleware/auth_middleware.dart';
 import 'package:front_mobile/modules/login/login_binding.dart';
 import 'package:front_mobile/modules/login/login_view.dart';
 import 'package:front_mobile/modules/profile/profile_view.dart';
+import 'package:front_mobile/modules/register/register_binding.dart';
+import 'package:front_mobile/modules/register/register_view.dart';
 import 'package:front_mobile/modules/shell/shell_binding.dart';
 import 'package:front_mobile/modules/shell/shell_view.dart';
 import 'package:front_mobile/modules/splash/splash_binding.dart';
@@ -25,6 +27,11 @@ class AppPages {
       name: AppRoutes.login,
       page: () => LoginView(),
       binding: LoginBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.register,
+      page: () => RegisterView(),
+      binding: RegisterBinding(),
     ),
     GetPage(
       name: AppRoutes.shell,

@@ -17,6 +17,14 @@ class AuthRepositoryImpl implements AuthRepository {
       _remote.login(mail: mail, password: password);
 
   @override
+  Future<AuthTokensModel> register({
+    required String nom,
+    required String mail,
+    required String password,
+  }) =>
+      _remote.register(nom: nom, mail: mail, password: password);
+
+  @override
   Future<UserModel> me() => _remote.me();
 
   @override

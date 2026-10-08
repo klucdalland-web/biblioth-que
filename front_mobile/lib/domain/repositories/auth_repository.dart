@@ -8,6 +8,12 @@ abstract class AuthRepository {
     required String password,
   });
 
+  Future<AuthTokensModel> register({
+    required String nom,
+    required String mail,
+    required String password,
+  });
+
   Future<UserModel> me();
 
   Future<UserModel> updateMe({

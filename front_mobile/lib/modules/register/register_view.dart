@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:front_mobile/app/routes/app_routes.dart';
 import 'package:front_mobile/app/theme/app_colors.dart';
-import 'package:front_mobile/modules/auth/auth_controller.dart';
+import 'package:front_mobile/modules/register/register_controller.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginView extends GetView<AuthController> {
-  LoginView({super.key});
+class RegisterView extends GetView<RegisterController> {
+  RegisterView({super.key});
 
+  final _nomCtrl = TextEditingController();
   final _mailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _obscure = true.obs;
+  final _obscureConfirm = true.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class LoginView extends GetView<AuthController> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Espace personnel — Bibliothèque de quartier',
+                      'Créez votre compte — Bibliothèque de quartier',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.85),
@@ -63,7 +66,7 @@ class LoginView extends GetView<AuthController> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              'Connexion',
+                              'Inscription',
                               style: GoogleFonts.outfit(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
@@ -71,7 +74,7 @@ class LoginView extends GetView<AuthController> {
                             ),
                             const SizedBox(height: 6),
                             const Text(
-                              'Identifiez-vous pour accéder à la gestion',
+                              'Remplissez le formulaire pour créer votre compte',
                               style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 13,
@@ -95,6 +98,16 @@ class LoginView extends GetView<AuthController> {
                                 ),
                               );
                             }),
+                            TextFormField(
+                              controller: _nomCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Nom complet',
+                                prefixIcon: Icon(Icons.person_outline),
+                              ),
+                              validator: (v) =>
+                                  (v == null || v.isEmpty) ? 'Nom requis' : null,
+                            ),
+                            const SizedBox(height: 14),
                             TextFormField(
                               controller: _mailCtrl,
                               keyboardType: TextInputType.emailAddress,
@@ -125,7 +138,38 @@ class LoginView extends GetView<AuthController> {
                                 ),
                                 validator: (v) => (v == null || v.isEmpty)
                                     ? 'Mot de passe requis'
-                                    : null,
+                                    : (v.length < 6)
+                                        ? '6 caractères minimum'
+                                        : null,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Obx(
+                              () => TextFormField(
+                                controller: _confirmCtrl,
+                                obscureText: _obscureConfirm.value,
+                                decoration: InputDecoration(
+                                  labelText: 'Confirmer le mot de passe',
+                                  prefixIcon: const Icon(Icons.lock_outline),
+                                  suffixIcon: IconButton(
+                                    onPressed: () =>
+                                        _obscureConfirm.value = !_obscureConfirm.value,
+                                    icon: Icon(
+                                      _obscureConfirm.value
+                                          ? Icons.visibility_outlined
+                                          : Icons.visibility_off_outlined,
+                                    ),
+                                  ),
+                                ),
+                                validator: (v) {
+                                  if (v == null || v.isEmpty) {
+                                    return 'Confirmation requise';
+                                  }
+                                  if (v != _passwordCtrl.text) {
+                                    return 'Les mots de passe ne correspondent pas';
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -137,7 +181,8 @@ class LoginView extends GetView<AuthController> {
                                         if (!_formKey.currentState!.validate()) {
                                           return;
                                         }
-                                        final ok = await controller.login(
+                                        final ok = await controller.register(
+                                          nom: _nomCtrl.text.trim(),
                                           mail: _mailCtrl.text.trim(),
                                           password: _passwordCtrl.text,
                                         );
@@ -154,13 +199,13 @@ class LoginView extends GetView<AuthController> {
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Text('Se connecter'),
+                                    : const Text('Créer mon compte'),
                               ),
                             ),
                             const SizedBox(height: 16),
                             TextButton(
-                              onPressed: () => Get.toNamed(AppRoutes.register),
-                              child: const Text('Pas de compte ? Créer un compte'),
+                              onPressed: () => Get.back(),
+                              child: const Text('Déjà un compte ? Se connecter'),
                             ),
                           ],
                         ),

@@ -26,6 +26,23 @@ class AuthRemoteDataSource {
     }
   }
 
+  Future<AuthTokensModel> register({
+    required String nom,
+    required String mail,
+    required String password,
+  }) async {
+    try {
+      final res = await _api.dio.post(
+        ApiConstants.register,
+        data: {'nom': nom, 'mail': mail, 'password': password},
+      );
+      final data = _api.unwrap(res) as Map<String, dynamic>;
+      return AuthTokensModel.fromJson(data);
+    } on DioException catch (e) {
+      _api.throwFromDio(e);
+    }
+  }
+
   Future<UserModel> me() async {
     try {
       final res = await _api.dio.get(ApiConstants.me);

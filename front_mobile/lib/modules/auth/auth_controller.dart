@@ -71,6 +71,42 @@ class AuthController extends GetxController {
     }
   }
 
+  /// Inscrit un nouvel utilisateur. Retourne `true` en cas de succès.
+  Future<bool> register({
+    required String nom,
+    required String mail,
+    required String password,
+  }) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      final tokens = await _repo.register(
+        nom: nom,
+        mail: mail,
+        password: password,
+      );
+      await _storage.saveTokens(
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      );
+      if (tokens.user != null) {
+        user.value = tokens.user;
+        _storage.saveUserJson(tokens.user!.toJson());
+      } else {
+        await restoreSession();
+      }
+      return true;
+    } on ApiException catch (e) {
+      errorMessage.value = e.message;
+      return false;
+    } catch (e) {
+      errorMessage.value = e.toString();
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   /// Déconnexion locale + API. La navigation reste à la charge de la vue.
   Future<void> logout() async {
     final refresh = await _storage.refreshToken;
